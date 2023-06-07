@@ -19,6 +19,8 @@ public interface WxSmgServer {
     void 收款之后(PayoutInformation pay);
 
     void 私聊(PrivateChatMsg chatMsg);
+    void 群聊(PrivateChatMsg chatMsg);
+    void 手机发出信息(PrivateChatMsg chatMsg);
 
     void 文件助手(PrivateChatMsg chatMsg);
 

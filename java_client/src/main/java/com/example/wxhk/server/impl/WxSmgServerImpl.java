@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.Objects;
-
 @Service
 public class WxSmgServerImpl implements com.example.wxhk.server.WxSmgServer {
 
@@ -30,9 +28,17 @@ public class WxSmgServerImpl implements com.example.wxhk.server.WxSmgServer {
 
     @Override
     public void 私聊(PrivateChatMsg chatMsg) {
-        if (Objects.equals(chatMsg.getIsSendMsg(), 1) && Objects.equals(chatMsg.getIsSendByPhone(), 1)) {
-            log.info("手机端对:{}发出:{}", chatMsg.getFromUser(), chatMsg.getContent());
-        }
+        log.info("收到:{}的信息:{}",chatMsg.getFromUser(),chatMsg.getContent());
+    }
+
+    @Override
+    public void 群聊(PrivateChatMsg chatMsg) {
+
+    }
+
+    @Override
+    public void 手机发出信息(PrivateChatMsg chatMsg) {
+        log.info("对:{}发出信息:{}",chatMsg.getFromUser(),chatMsg.getContent());
     }
 
     @Override
