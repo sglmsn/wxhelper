@@ -1,13 +1,9 @@
 package com.example.wxhk.tcp.vertx;
 
-import com.example.wxhk.util.HttpAsyncUtil;
-import com.example.wxhk.util.HttpSyncUtil;
 import io.vertx.core.impl.ConcurrentHashSet;
-import io.vertx.core.json.JsonObject;
 import org.dromara.hutool.core.io.file.FileUtil;
 import org.dromara.hutool.core.net.NetUtil;
 import org.dromara.hutool.core.text.StrUtil;
-import org.dromara.hutool.core.thread.ThreadUtil;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.setting.Setting;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +30,7 @@ public class InitWeChat implements CommandLineRunner {
     public static final ConcurrentHashSet<String> WXID_MAP = new ConcurrentHashSet<>();
     public static String wxPath;
     public static Integer wxPort;
+    public static Boolean wxHttp;
     public static Integer vertxPort;
     /**
      * wxhelper.dll 所在路径
@@ -52,6 +49,9 @@ public class InitWeChat implements CommandLineRunner {
         try {
             File wxPathFile = new File(wxPath);
             File config = new File(wxPathFile.getParentFile(), "config.ini");
+            if(!config.exists()){
+                config.createNewFile();
+            }
             Setting setting = new Setting(config.getAbsolutePath());
             setting.getGroupedMap().put("config", "port", String.valueOf(wxPort));
             setting.store();
@@ -115,6 +115,11 @@ public class InitWeChat implements CommandLineRunner {
         InitWeChat.wxPath = wxPath;
     }
 
+    @Value("${wx.http}")
+    public  void setWxHttp(Boolean wxHttp) {
+        InitWeChat.wxHttp = wxHttp;
+    }
+
     public static Integer getVertxPort() {
         return vertxPort;
     }
@@ -133,23 +138,23 @@ public class InitWeChat implements CommandLineRunner {
             String wxPid = getWxPid();
             注入dll(wxPid);
         }
-        ThreadUtil.execute(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                JsonObject exec = HttpSyncUtil.exec(HttpAsyncUtil.Type.检查微信登陆, new JsonObject());
-                if (exec.getInteger("code").equals(1)) {
-                    JsonObject dl = HttpSyncUtil.exec(HttpAsyncUtil.Type.获取登录信息, new JsonObject());
-                    JsonObject jsonObject = dl.getJsonObject("data");
-                    String wx = jsonObject.getString("wxid");
-                    WXID_MAP.add(wx);
-                    if (log.isDebugEnabled()) {
-                        log.debug("检测到微信登陆:{}", wx);
-                    }
-                    break;
-                }
-                ThreadUtil.safeSleep(500);
-            }
-
-        });
+//        ThreadUtil.execute(() -> {
+//            while (!Thread.currentThread().isInterrupted()) {
+//                JsonObject exec = HttpSyncUtil.exec(HttpAsyncUtil.Type.检查微信登陆, new JsonObject());
+//                if (exec.getInteger("code").equals(1)) {
+//                    JsonObject dl = HttpSyncUtil.exec(HttpAsyncUtil.Type.获取登录信息, new JsonObject());
+//                    JsonObject jsonObject = dl.getJsonObject("data");
+//                     String wx = jsonObject.getString("wxid");
+//                    WXID_MAP.add(wx);
+//                    if (log.isDebugEnabled()) {
+//                        log.debug("检测到微信登陆:{}", wx);
+//                    }
+//                    break;
+//                }
+//                ThreadUtil.safeSleep(500);
+//            }
+//
+//        });
         // FIXME: 2023/6/2 程序结束后关闭hook会偶尔出现微信闪退情况,暂时禁用
 //        Runtime.getRuntime().addShutdownHook(new Thread(HttpSendUtil::关闭hook));
         //netstat -aon|findstr "端口号"

@@ -19,11 +19,11 @@ public class WxSmgServerImpl implements com.example.wxhk.server.WxSmgServer {
     public static final String FILEHELPER = "filehelper";
     @Override
     public void 接到收款(PayoutInformation payoutInformation) {
-        HttpSendUtil.确认收款(new ConfirmThePayment().setWxid(payoutInformation.receiverUsername()).setTranscationId(payoutInformation.transcationid()).setTransferId(payoutInformation.transferid()));
+        HttpSendUtil.确认收款(new ConfirmThePayment().setWxid(payoutInformation.wxid()).setTranscationId(payoutInformation.transcationid()).setTransferId(payoutInformation.transferid()));
     }
     @Override
     public void 收款之后(PayoutInformation pay) {
-        HttpSendUtil.发送文本(pay.receiverUsername(), StrUtil.format("收到款项:{},备注:{}", pay.decimal().stripTrailingZeros().toPlainString(), pay.remark()));
+        HttpSendUtil.发送文本(pay.wxid(), StrUtil.format("收到款项:{},备注:{}", pay.decimal().stripTrailingZeros().toPlainString(), pay.remark()));
     }
 
     @Override
@@ -65,6 +65,6 @@ public class WxSmgServerImpl implements com.example.wxhk.server.WxSmgServer {
 
     @Override
     public void 扫码收款(PayoutInformation payoutInformation) {
-        HttpSendUtil.发送文本(payoutInformation.receiverUsername(), StrUtil.format("扫码收款:{},备注:{}", payoutInformation.decimal().stripTrailingZeros().toPlainString(), payoutInformation.remark()));
+        HttpSendUtil.发送文本(payoutInformation.wxid(), StrUtil.format("扫码收款:{},备注:{}", payoutInformation.decimal().stripTrailingZeros().toPlainString(), payoutInformation.remark()));
     }
 }

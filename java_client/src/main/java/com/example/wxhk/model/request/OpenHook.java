@@ -15,4 +15,17 @@ import lombok.experimental.Accessors;
 public class OpenHook implements SendMsg<OpenHook> {
     String port;
     String ip;
+    /**
+     * http请求url
+     */
+    String url;
+
+    /**
+     * 超时时间,单位毫秒
+     */
+    String timeout;
+    /**
+     * 1.启用http 0.不启用http
+     */
+    Integer enableHttp;
 }

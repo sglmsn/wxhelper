@@ -3,7 +3,6 @@ package com.example.wxhk.tcp.vertx;
 import com.example.wxhk.model.PrivateChatMsg;
 import com.example.wxhk.msg.WxMsgHandle;
 import com.example.wxhk.util.HttpSendUtil;
-import io.vertx.core.json.JsonObject;
 import jakarta.annotation.PostConstruct;
 import org.dromara.hutool.core.thread.NamedThreadFactory;
 import org.dromara.hutool.log.Log;
@@ -27,6 +26,11 @@ public class ArrHandle {
      */
     public static final ThreadPoolExecutor sub = new ThreadPoolExecutor(4, 10, 30, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new NamedThreadFactory("sub", false));
     public static final ThreadLocal<PrivateChatMsg> chatMsgThreadLocal = new InheritableThreadLocal<>();
+    public final static LinkedBlockingQueue<PrivateChatMsg> LINKED_BLOCKING_QUEUE = new LinkedBlockingQueue<>();
+    /**
+     * 这个只保留交易相关的类型
+     */
+    public final static LinkedBlockingQueue<PrivateChatMsg> LINKED_BLOCKING_QUEUE_MON = new LinkedBlockingQueue<>();
     protected static final Log log = Log.get();
 
     /**
@@ -44,9 +48,8 @@ public class ArrHandle {
             sub.submit(() -> {
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
-                        JsonObject take = VertxTcp.LINKED_BLOCKING_QUEUE.take();
-                        log.info("{}", take.encode());
-                        PrivateChatMsg privateChatMsg = take.mapTo(PrivateChatMsg.class);
+
+                        PrivateChatMsg privateChatMsg = LINKED_BLOCKING_QUEUE.take();
                         chatMsgThreadLocal.set(privateChatMsg);
                         if ("weixin".equals(privateChatMsg.getFromUser())) {
                             String s = HttpSendUtil.获取当前登陆微信id();
@@ -66,9 +69,7 @@ public class ArrHandle {
         sub.submit(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    JsonObject take = VertxTcp.LINKED_BLOCKING_QUEUE_MON.take();
-                    log.info("{}", take.encode());
-                    PrivateChatMsg privateChatMsg = take.mapTo(PrivateChatMsg.class);
+                    PrivateChatMsg privateChatMsg  = LINKED_BLOCKING_QUEUE_MON.take();
                     chatMsgThreadLocal.set(privateChatMsg);
                     if ("weixin".equals(privateChatMsg.getFromUser())) {
                         String s = HttpSendUtil.获取当前登陆微信id();

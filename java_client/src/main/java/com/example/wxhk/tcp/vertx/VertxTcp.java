@@ -2,7 +2,10 @@ package com.example.wxhk.tcp.vertx;
 
 import com.example.wxhk.WxhkApplication;
 import com.example.wxhk.constant.WxMsgType;
+import com.example.wxhk.model.PrivateChatMsg;
+import com.example.wxhk.model.request.OpenHook;
 import com.example.wxhk.util.HttpAsyncUtil;
+import com.example.wxhk.util.HttpSendUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
@@ -17,7 +20,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 接受微信hook信息
@@ -28,11 +30,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Component
 @Order()
 public class VertxTcp extends AbstractVerticle implements CommandLineRunner {
-    public final static LinkedBlockingQueue<JsonObject> LINKED_BLOCKING_QUEUE = new LinkedBlockingQueue<>();
-    /**
-     * 这个只保留交易相关的类型
-     */
-    public final static LinkedBlockingQueue<JsonObject> LINKED_BLOCKING_QUEUE_MON = new LinkedBlockingQueue<>();
     protected static final Log log = Log.get();
     NetServer netServer;
 
@@ -59,11 +56,12 @@ public class VertxTcp extends AbstractVerticle implements CommandLineRunner {
                     case VALUE -> {
                         JsonObject entries = event.objectValue();
 
-                        if(Objects.equals(entries.getInteger("type"), WxMsgType.扫码触发.getType()) ||
-                                Objects.equals(entries.getInteger("type"), WxMsgType.转账和收款.getType())){
-                            LINKED_BLOCKING_QUEUE_MON.add(entries);
+                        PrivateChatMsg e = entries.mapTo(PrivateChatMsg.class);
+                        if(Objects.equals(e.getType(), WxMsgType.扫码触发.getType()) ||
+                                Objects.equals(e.getType(), WxMsgType.转账和收款.getType())){
+                            ArrHandle.LINKED_BLOCKING_QUEUE_MON.add(e);
                         }else{
-                            LINKED_BLOCKING_QUEUE.add(entries);
+                            ArrHandle.LINKED_BLOCKING_QUEUE.add(e);
                         }
                     }
                 }
@@ -75,7 +73,7 @@ public class VertxTcp extends AbstractVerticle implements CommandLineRunner {
         listen.onComplete(event -> {
             boolean succeeded = event.succeeded();
             if (succeeded) {
-                HttpAsyncUtil.exec(HttpAsyncUtil.Type.开启hook, new JsonObject().put("port", InitWeChat.getVertxPort().toString()).put("ip", "127.0.0.1"));
+                HttpAsyncUtil.exec(HttpAsyncUtil.Type.开启hook, new OpenHook().setUrl("http://localhost:8080/wx/msg").setTimeout("3000").setEnableHttp(0).setPort( InitWeChat.getVertxPort().toString()).setIp("127.0.0.1").toJson());
                 startPromise.complete();
             } else {
                 startPromise.fail(event.cause());
@@ -86,6 +84,10 @@ public class VertxTcp extends AbstractVerticle implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        WxhkApplication.vertx.deployVerticle(this, new DeploymentOptions().setWorkerPoolSize(6));
+        if (!InitWeChat.wxHttp) {
+            WxhkApplication.vertx.deployVerticle(this, new DeploymentOptions().setWorkerPoolSize(6));
+        }else{
+            HttpSendUtil.开启hook(new OpenHook().setUrl("http://localhost:8080/wx/msg").setTimeout("3000").setEnableHttp(1).setPort( InitWeChat.getVertxPort().toString()).setIp("127.0.0.1"));
+        }
     }
 }
