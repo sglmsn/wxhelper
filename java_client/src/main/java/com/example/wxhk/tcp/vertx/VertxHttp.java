@@ -58,9 +58,7 @@ public class VertxHttp extends AbstractVerticle implements CommandLineRunner {
                 }
             }
         });
-        httpServer.requestHandler(event -> {
-            event.handler(parser);
-        });
+        httpServer.requestHandler(event -> event.handler(parser));
         Future<HttpServer> listen = httpServer.listen();
 
 

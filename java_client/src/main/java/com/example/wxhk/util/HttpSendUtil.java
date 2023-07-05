@@ -99,7 +99,7 @@ public class HttpSendUtil {
     }
 
     public static ContactList 联系人列表(){
-        JsonObject exec = HttpSyncUtil.exec(HttpAsyncUtil.Type.联系人列表, new JsonObject());
+        JsonObject exec = HttpSyncUtil.exec(HttpAsyncUtil.Type.好友列表, new JsonObject());
         return exec.mapTo(ContactList.class);
     }
     public static JsonObject 开启hook(OpenHook hook){

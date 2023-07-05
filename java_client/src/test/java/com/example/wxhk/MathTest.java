@@ -10,6 +10,8 @@ public class MathTest {
     void t1() {
 
 
+
+
         /**
          * 1. 方程式   A*13+B*12+C*3=412,500
          * 2. C大于等于B, B大于等于A
@@ -28,3 +30,4 @@ public class MathTest {
         }
     }
 }
+

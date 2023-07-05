@@ -24,7 +24,7 @@ public class HttpAsyncUtil {
     protected static final Log log = Log.get();
 
     public static Future<HttpResponse<Buffer>> exec(Type type, JsonObject object) {
-        return client.post(InitWeChat.wxPort, "localhost", "/api/?type=" + type.getType())
+        return client.post(InitWeChat.wxPort, "localhost", "/api/" + type.getType())
                 .sendJsonObject(object)
                 .onSuccess(event ->
                         {
@@ -36,7 +36,7 @@ public class HttpAsyncUtil {
     }
 
     public static Future<HttpResponse<Buffer>> exec(Type type, JsonObject object, Handler<AsyncResult<HttpResponse<Buffer>>> handler) {
-        return client.post(InitWeChat.wxPort, "localhost", "/api/?type=" + type.getType())
+        return client.post(InitWeChat.wxPort, "localhost", "/api/" + type.getType())
                 .sendJsonObject(object)
                 .onComplete(handler)
                 ;
@@ -45,21 +45,21 @@ public class HttpAsyncUtil {
     }
 
     public enum Type {
-        检查微信登陆("0"),
-        获取登录信息("1"),
-        发送文本("2"),
+        检查微信登陆("checkLogin"),
+        获取登录信息("userInfo"),
+        发送文本("sendTextMsg"),
         发送at文本("3"),
         发送图片("5"),
         发送文件("6"),
-        开启hook("9"),
-        关闭hook("10"),
+        开启hook("hookSyncMsg"),
+        关闭hook("unhookSyncMsg"),
         添加好友("20"),
         通过好友申请("23"),
         获取群成员("25"),
         获取群成员昵称("26"),
         删除群成员("27"),
         确认收款("45"),
-        联系人列表("46"),
+        好友列表("getContactList"),
         查询微信信息("55"),
 
 

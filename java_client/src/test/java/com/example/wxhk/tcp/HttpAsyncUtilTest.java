@@ -19,7 +19,7 @@ class HttpAsyncUtilTest {
 
     @Test
     void exec() {
-        Future<HttpResponse<Buffer>> exec = HttpAsyncUtil.exec(HttpAsyncUtil.Type.联系人列表, new JsonObject());
+        Future<HttpResponse<Buffer>> exec = HttpAsyncUtil.exec(HttpAsyncUtil.Type.好友列表, new JsonObject());
         exec.onSuccess(event -> {
            Console.log(event.bodyAsJsonObject());
         });
