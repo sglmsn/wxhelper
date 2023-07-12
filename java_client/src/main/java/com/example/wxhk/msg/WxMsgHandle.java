@@ -48,16 +48,27 @@ public class WxMsgHandle {
         WxMsgHandle.wxSmgServer = wxSmgServer;
     }
 
+
     @PostConstruct
     public void init() {
         add(chatMsg -> {
             if (Objects.equals(chatMsg.getIsSendMsg(), 1) && Objects.equals(chatMsg.getIsSendByPhone(), 1)) {
                 wxSmgServer.手机发出信息(chatMsg);
-            }else{
-                wxSmgServer.私聊(chatMsg);
+            } else {
+                String fromGroup = chatMsg.getFromGroup();
+                if(是群组(fromGroup)){
+                    wxSmgServer.群聊(chatMsg);
+                }else{
+                    if(chatMsg.getFromUser().startsWith("gh_")){
+                        // 微信公众号直接跳过
+                        return null;
+                    }
+                    wxSmgServer.私聊(chatMsg);
+                }
+
             }
             return null;
-        }, WxMsgType.私聊信息);
+        }, WxMsgType.私聊信息, WxMsgType.图片, WxMsgType.表情);
         add(chatMsg -> {
             if (FILEHELPER.equals(chatMsg.getFromUser())) {
                 wxSmgServer.文件助手(chatMsg);
@@ -234,6 +245,15 @@ public class WxMsgHandle {
             log.error(e);
         }
         return true;
+    }
+
+    /**
+     * 判断是否为群组
+     * @param wxid
+     * @return boolean  如果是群,则true
+     */
+    public static boolean 是群组(String wxid) {
+        return wxid.endsWith("@chatroom");
     }
 
     public static void exec(PrivateChatMsg chatMsg) {

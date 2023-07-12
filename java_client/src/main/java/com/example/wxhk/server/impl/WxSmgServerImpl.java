@@ -33,7 +33,7 @@ public class WxSmgServerImpl implements com.example.wxhk.server.WxSmgServer {
 
     @Override
     public void 群聊(PrivateChatMsg chatMsg) {
-
+        log.info("群{}的{}发出:{}的信息:{}",chatMsg.getFromGroup(),chatMsg.getFromUser(),chatMsg.getContent());
     }
 
     @Override
@@ -43,7 +43,7 @@ public class WxSmgServerImpl implements com.example.wxhk.server.WxSmgServer {
 
     @Override
     public void 文件助手(PrivateChatMsg chatMsg) {
-
+        log.info("文件助手:{}",chatMsg.getFromUser(),chatMsg.getContent());
     }
 
     @Override
